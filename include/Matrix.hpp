@@ -42,10 +42,10 @@ public:
      * @exception std::bad_alloc    Allocation failure
      * @note                        Time Complexity: O(N)
      */
-    Matrix(const size_type& height, const size_type& width, const value_type& value = K()):
+    Matrix(const size_type& height, const size_type& width, const value_type& value = value_type()):
         _max_m(height), _max_n(width), _data(new value_type[height * width])
     {
-        for (size_type i = 0; i < this->size(); i++)
+        for (size_type i = 0; i < this->size(); ++i)
             this->_data[i] = value;
     }
 
@@ -60,10 +60,10 @@ public:
      * @exception std::bad_alloc    Allocation failure
      * @note                        Time Complexity: O(N)
      */
-    Matrix(const size_type& height, const size_type& width, const std::vector<K>& data):
+    Matrix(const size_type& height, const size_type& width, const std::vector<value_type>& data):
         _max_m(height), _max_n(width), _data(new value_type[_max_m * _max_n])
     {
-        for (size_type i = 0; i < this->size(); i++)
+        for (size_type i = 0; i < this->size(); ++i)
             this->_data[i] = data.at(i);
     }
 
@@ -79,8 +79,8 @@ public:
     explicit Matrix(const std::vector<std::vector<K>>& data):
         _max_m(data.size()), _max_n(data.empty() ? 0 : data[0].size()), _data(new value_type[_max_m * _max_n])
     {
-        for (size_type m = 0; m < data.size(); m++)
-            for (size_type n = 0; n < data[m].size(); n++)
+        for (size_type m = 0; m < data.size(); ++m)
+            for (size_type n = 0; n < data[m].size(); ++n)
                 this->at(m, n) = data.at(m).at(n);
     }
 
@@ -95,7 +95,7 @@ public:
     Matrix(const Matrix& other):
         _max_m(other._max_m), _max_n(other._max_n), _data(new value_type[_max_m * _max_n])
     {
-        for (size_type i = 0; i < this->size(); i++)
+        for (size_type i = 0; i < this->size(); ++i)
             this->_data[i] = other._data[i];
     }
 
@@ -124,7 +124,7 @@ public:
         delete[] this->_data;
 
         this->_data = new value_type[rhs._max_m * rhs._max_n];
-        for (size_type i = 0; i < rhs.size(); i++)
+        for (size_type i = 0; i < rhs.size(); ++i)
             this->_data[i] = rhs._data[i];
 
         this->_max_m = rhs._max_m;
@@ -164,7 +164,7 @@ public:
     Matrix& operator+=(const Matrix& rhs)
     {
         this->check_sizes(rhs);
-        for (size_type i = 0; i < this->size(); i++)
+        for (size_type i = 0; i < this->size(); ++i)
             this->_data[i] += rhs._data[i];
         return *this;
     }
@@ -181,7 +181,7 @@ public:
     Matrix& operator-=(const Matrix& rhs)
     {
         this->check_sizes(rhs);
-        for (size_type i = 0; i < this->size(); i++)
+        for (size_type i = 0; i < this->size(); ++i)
             this->_data[i] -= rhs._data[i];
         return *this;
     }
@@ -194,9 +194,9 @@ public:
      * @return                      This matrix
      * @note                        Time Complexity: O(N)
      */
-    Matrix& operator*=(const value_type& rhs)
+    Matrix& operator*=(const value_type& rhs) noexcept
     {
-        for (size_type i = 0; i < this->size(); i++)
+        for (size_type i = 0; i < this->size(); ++i)
             this->_data[i] *= rhs;
         return *this;
     }
@@ -241,7 +241,7 @@ public:
      * @return                      New matrix containing result
      * @note                        Time Complexity: O(N)
      */
-    Matrix operator*(const value_type& rhs) const
+    Matrix operator*(const value_type& rhs) const noexcept
     {
         Matrix tmp = *this;
         tmp *= rhs;
@@ -302,6 +302,43 @@ public:
     constexpr size_type size() const noexcept
         { return this->_max_m * this->_max_n; }
 
+    /**
+     * Checks if the given coordinates is within the bounds of the matrix
+    *
+     * @param m                     Height position (usually denoted `m`)
+     * @param n                     Width position (usually denoted `n`)
+     *
+     * @return                      TRUE if within bounds, otherwise FALSE
+     * @note                        Time Complexity: O(1)
+     */
+    constexpr bool has(const size_type& m, const size_type& n) const noexcept
+        { return m < this->_max_m && n < this->_max_n; }
+
+    /**
+     * Resizes the matrix to the given coordinates, and uses the value
+     * for newly created spots
+     *
+     * @param height                New matrix' height
+     * @param width                 New matrix' width
+     * @param value                 Value to inplace in case of new spots
+     *
+     * @exception std::bad_alloc    Allocation failure
+     * @note                        Time Complexity: O(n)
+     */
+    void resize(const size_type& height, const size_type& width, const value_type& value = value_type())
+    {
+        Matrix tmp(height, width, value);
+        for (size_type m = 0; m < height; ++m)
+            for (size_type n = 0; n < width; ++n)
+            {
+                if (this->has(m, n))
+                    tmp.at(m, n) = this->at(m, n);
+                else
+                    tmp.at(m, n) = value;
+            }
+        *this = std::move(tmp);
+    }
+
 private:
 
     /**
@@ -325,7 +362,7 @@ private:
 };
 
 template < class K >
-Matrix<K> operator*(const typename Matrix<K>::value_type& lhs, const Matrix<K>& rhs)
+Matrix<K> operator*(const typename Matrix<K>::value_type& lhs, const Matrix<K>& rhs) noexcept
     { return rhs.operator*(lhs); }
 
 template < class K >
@@ -334,10 +371,10 @@ std::ostream& operator<<(std::ostream& out, const Matrix<K>& value)
     const size_t max_m = value.shape().first;
     const size_t max_n = value.shape().second;
 
-    for (size_t m = 0; m < max_m; m++)
+    for (size_t m = 0; m < max_m; ++m)
     {
         out << (m != 0 ? ' ' : '[');
-        for (size_t n = 0; n < max_n; n++)
+        for (size_t n = 0; n < max_n; ++n)
             out << value.at(m, n) << (n < max_n - 1 ? ", " : "");
         out << (m < max_m - 1 ? '\n' : ']');
     }
