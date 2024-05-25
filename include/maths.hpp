@@ -36,7 +36,7 @@ Vector<K> linear_combination(const std::vector<Vector<K>>& u, const std::vector<
 
 template < class V >
 V lerp(const V& u, const V& v, const float& t)
-    { return u + (v - u) * t; }
+    { return (v - u) * t + u; }
 
 template < class V >
 V round_n(const V& value, const size_t& decimals)

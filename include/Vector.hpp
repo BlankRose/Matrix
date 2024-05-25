@@ -164,6 +164,45 @@ public:
     }
 
     /**
+     * Calculate the 1-norm (Taxicab norm) for this vector
+     *
+     * @return                      Value of the norm
+     */
+    double norm_1() const
+    {
+        value_type tmp = 0;
+        for (size_type i = 0; i < this->size(); ++i)
+            tmp += std::max((*this)[i], -(*this)[i]);
+        return static_cast<double>(tmp);
+    }
+
+    /**
+     * Calculates the 2-norm (Euclidean norm) for this vector
+     *
+     * @return                      Value of the norm
+     */
+    double norm_2() const
+    {
+        double tmp = 0;
+        for (size_type i = 0; i < this->size(); ++i)
+            tmp += std::pow(static_cast<double>((*this)[i]), 2.);
+        return std::pow(tmp, .5);
+    }
+
+    /**
+     * Calculates the inf-norm (Supremum norm) for this vector
+     *
+     * @return                      Value of the norm
+     */
+    double norm_inf() const
+    {
+        value_type tmp = 0;
+        for (size_type i = 0; i < this->size(); ++i)
+            tmp = std::max(tmp, std::max((*this)[i], -(*this)[i]));
+        return static_cast<double>(tmp);
+    }
+
+    /**
      * Converts the vector into a matrix by copy
      *
      * @return                      Ready to use matrix

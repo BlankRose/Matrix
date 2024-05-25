@@ -34,8 +34,6 @@ int main()
         {1, 2, 4, 8}
     }));
 
-    std::cout << a.transpose() << std::endl;
-
     assert_eq(a.transpose() == a);
     assert_eq(b.transpose() == f32Matrix({
         {1, 4, 7},
