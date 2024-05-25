@@ -486,6 +486,20 @@ public:
     }
 
     /**
+     * Creates a copy of the matrix and transposes it
+     *
+     * @return                      Transposed copy of the matrix
+     */
+    Matrix transpose() const
+    {
+        Matrix result(this->_max_n, this->_max_m);
+        for (size_type m = 0; m < this->_max_m; ++m)
+            for (size_type n = 0; n < this->_max_n; ++n)
+                result[{n, m}] = (*this)[{m, n}];
+        return result;
+    }
+
+    /**
      * Checks if the two matrix are same
      *
      * @param rhs                   Matrix to compare to

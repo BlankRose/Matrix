@@ -13,6 +13,7 @@
 
 /// Reference:
 /// https://matrix.reshish.com/multCalculation.php
+/// https://www.mathsisfun.com/algebra/matrix-multiplying.html
 
 int main()
 {
