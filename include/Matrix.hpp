@@ -106,7 +106,8 @@ public:
      * @note                        Time Complexity: O(1)
      */
     Matrix(Matrix&& other) noexcept:
-        _max_m(std::move(other._max_m)), _max_n(std::move(other._max_n)), _data(std::move(other._data)) {}
+        _max_m(std::move(other._max_m)), _max_n(std::move(other._max_n)), _data(std::move(other._data))
+        { other._data = nullptr; }
 
     /**
      * Copies the given matrix into this current one
@@ -149,6 +150,7 @@ public:
         this->_data = std::move(rhs._data);
         this->_max_m = std::move(rhs._max_m);
         this->_max_n = std::move(rhs._max_n);
+        rhs._data = nullptr;
         return *this;
     }
 
@@ -249,7 +251,7 @@ public:
     }
 
     /**
-     * Retrieves the element at the given coordinates
+     * Retrieves the element at the given coordinates, with bounds checks
      *
      * @param m                     Height position (usually denoted `m`)
      * @param n                     Width position (usually denoted `n`)
@@ -283,6 +285,30 @@ public:
             throw std::out_of_range("position is out of range");
         return this->_data[pos];
     }
+
+    /**
+     * Retrieves the element at the given coordinates
+     * (Caution: does not checks for bounds)
+     *
+     * @param pos                   Position of element to retrieve at
+     *
+     * @return                      Reference to value at given coordinates
+     * @note                        Time Complexity: O(1)
+     */
+    value_type& operator[](const shape_type& pos)
+        { return this->_data[pos.first * this->_max_n + pos.second]; }
+
+    /**
+     * Retrieves the element at the given coordinates
+     * (Caution: does not checks for bounds)
+     *
+     * @param pos                   Position of element to retrieve at
+     *
+     * @return                      Const reference to value at given coordinates
+     * @note                        Time Complexity: O(1)
+     */
+    const value_type& operator[](const shape_type& pos) const
+        { return this->_data[pos.first * this->_max_n + pos.second]; }
 
     /**
      * Retrieves the shape of the matrix
@@ -339,7 +365,18 @@ public:
         *this = std::move(tmp);
     }
 
-private:
+    bool operator==(const Matrix& rhs) const
+    {
+        if (this->shape() != rhs.shape())
+            return false;
+        for (size_type i = 0; i < this->size(); ++i)
+            if (this->_data[i] != rhs._data[i])
+                return false;
+        return true;
+    }
+
+    bool operator!=(const Matrix& rhs) const
+        { return !(*this == rhs); }
 
     /**
      * Checks if given matrix has the same shape as the current one, otherwise
@@ -356,6 +393,7 @@ private:
             throw std::logic_error("cannot operate with different matrix sizes");
     }
 
+private:
     size_type       _max_m; // Matrix' height
     size_type       _max_n; // Matrix' width
     value_type *    _data;  // Matrix' content

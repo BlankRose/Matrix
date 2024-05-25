@@ -60,20 +60,50 @@ public:
     Vector& operator*=(const value_type& rhs)
         { this->_matrix *= rhs; return *this; }
 
-    Vector operator+(const Vector& rhs)
-        { this->_matrix + rhs._matrix; return *this; }
+    Vector operator+(const Vector& rhs) const
+    {
+        Vector tmp = *this;
+        tmp += rhs;
+        return tmp;
+    }
 
-    Vector operator-(const Vector& rhs)
-        { this->_matrix - rhs._matrix; return *this; }
+    Vector operator-(const Vector& rhs) const
+    {
+        Vector tmp = *this;
+        tmp -= rhs;
+        return tmp;
+    }
 
-    Vector operator*(const value_type& rhs)
-        { this->_matrix * rhs; return *this; }
+    Vector operator*(const value_type& rhs) const
+    {
+        Vector tmp = *this;
+        tmp *= rhs;
+        return tmp;
+    }
+
+    bool operator==(const Vector& rhs) const
+        { return this->_matrix == rhs._matrix; }
+
+    bool operator!=(const Vector& rhs) const
+        { return this->_matrix != rhs._matrix; }
+
+    bool operator==(const Matrix<K>& rhs) const
+        { return this->_matrix == rhs; }
+
+    bool operator!=(const Matrix<K>& rhs) const
+        { return this->_matrix != rhs; }
 
     value_type& at(const size_type& m)
         { return this->_matrix.at(m, 0); }
 
     const value_type& at(const size_type& m) const
         { return this->_matrix.at(m, 0); }
+
+    value_type& operator[](const size_type& m)
+        { return this->_matrix[{m, 0}]; }
+
+    const value_type& operator[](const size_type& m) const
+        { return this->_matrix[{m, 0}]; }
 
     constexpr shape_type shape() const noexcept
         { return { this->_matrix.shape().first, 1 }; }
@@ -87,14 +117,19 @@ public:
     void resize(const size_type& height, const value_type& value = value_type())
         { this->_matrix.resize(height, 1, value); }
 
+    void check_sizes(const Vector& other) const
+        { return this->_matrix.check_sizes(other._matrix); }
+
     matrix_type to_matrix() const
         { return _matrix; }
 
     static Vector from_matrix(const matrix_type& matrix)
     {
+        if (matrix.shape().second != 1)
+            throw std::logic_error("matrix is too wide to be converted into vector");
         Vector tmp(0);
-        matrix.resize(matrix.shape().first, 1);
-        return tmp._matrix = std::move(matrix);
+        tmp._matrix = std::move(matrix);
+        return tmp;
     }
 
 private:
@@ -104,6 +139,14 @@ private:
 template < class K >
 Vector<K> operator*(const typename Vector<K>::value_type& lhs, const Vector<K>& rhs)
     { return rhs.operator*(lhs); }
+
+template < class K >
+bool operator==(const Matrix<K>& lhs, const Vector<K>& rhs)
+    { return rhs == lhs; }
+
+template < class K >
+bool operator!=(const Matrix<K>& lhs, const Vector<K>& rhs)
+    { return rhs != lhs; }
 
 template < class K >
 std::ostream& operator<<(std::ostream& out, const Vector<K>& value)
