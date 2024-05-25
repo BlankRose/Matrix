@@ -48,7 +48,6 @@ int main()
 
         init_display(f32Vector a(3));
         init_display(f32Vector b({2, 6, 7, 8}));
-        init_display(f32Matrix c({ {2}, {6}, {7}, {8} }));
 
         std::cout << "Vector A:\n" << a << std::endl;
         std::cout << "Vector B:\n" << b << std::endl;
@@ -63,9 +62,21 @@ int main()
         assert_eq(b[2] == 7);
         assert_eq(b.has(2) == true);
         assert_eq(b.has(4) == false);
-        assert_eq(b.to_matrix() == c);
-        assert_eq(b == c.to_vector());
-        assert_eq(b == c);
+
+        results();
+    }
+    std::cout << std::endl;
+    {
+        title("Vector to/from Matrix");
+
+        init_display(f32Vector a({2, 6, 7, 8}));
+        init_display(f32Matrix b({ {2}, {6}, {7}, {8} }));
+
+        assert_eq(a == b);
+        assert_eq(a.to_matrix() == b);
+        assert_eq(a == b.to_vector());
+        assert_eq(f32Matrix(a) == b);
+        assert_eq(a == f32Vector(b));
 
         results();
     }

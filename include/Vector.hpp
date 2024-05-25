@@ -57,6 +57,16 @@ public:
     Vector(Vector&& other) noexcept:
         _matrix(std::move(other._matrix)) {}
 
+    template <typename = typename
+        std::enable_if<std::is_same<Matrix<value_type>, Matrix<value_type>>::value>::type>
+    explicit Vector(const Matrix<value_type>& other):
+        _matrix(other) {}
+
+    template <typename = typename
+        std::enable_if<std::is_same<Matrix<value_type>, Matrix<value_type>>::value>::type>
+    explicit Vector(Matrix<value_type>&& other) noexcept:
+        _matrix(std::move(other)) {}
+
     Vector& operator=(const Vector& rhs)
         { this->_matrix = rhs._matrix; return *this; }
 
@@ -129,6 +139,9 @@ public:
     constexpr bool empty() const
         { return this->_matrix.empty(); }
 
+    constexpr bool square() const
+        { return this->_matrix.square(); }
+
     constexpr size_type size() const noexcept
         { return this->_matrix.height(); }
 
@@ -181,12 +194,12 @@ template < class K >
 std::ostream& operator<<(std::ostream& out, const Vector<K>& value)
     { return out << value.to_matrix(); }
 
-using f64Vector = Vector<double>;
-using i64Vector = Vector<long long>;
-using u64Vector = Vector<unsigned long long>;
+using f64Vector = Vector<double>;               // Helper type for double Vector
+using i64Vector = Vector<long long>;            // Helper type for long Vector
+using u64Vector = Vector<unsigned long long>;   // Helper type for unsigned long Vector
 
-using f32Vector = Vector<float>;
-using i32Vector = Vector<int>;
-using u32Vector = Vector<unsigned>;
+using f32Vector = Vector<float>;                // Helper type for float Vector
+using i32Vector = Vector<int>;                  // Helper type for integer Vector
+using u32Vector = Vector<unsigned>;             // Helper type for unsigned Vector
 
 #endif //VECTOR_HPP

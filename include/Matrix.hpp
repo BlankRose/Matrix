@@ -12,6 +12,7 @@
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
 
+#include <cmath>
 #include <vector>
 #include <iostream>
 
@@ -61,7 +62,7 @@ public:
      * @param width                 Width of the matrix (usually denoted `n`)
      * @param data                  Array of values to fill the matrix with
      *
-     * @exception std::out_of_range Given array is too short
+     * @exception std::out_of_range Given array is missing values
      * @exception std::bad_alloc    Allocation failure
      */
     Matrix(const size_type& height, const size_type& width, const std::vector<value_type>& data):
@@ -76,7 +77,7 @@ public:
      *
      * @param data                  Matrix of values to fill the matrix with
      *
-     * @exception std::out_of_range Given matrix is not properly shaped
+     * @exception std::out_of_range Given matrix is missing values
      * @exception std::bad_alloc    Allocation failure
      */
     explicit Matrix(const std::vector<std::vector<K>>& data):
@@ -109,6 +110,26 @@ public:
     Matrix(Matrix&& other) noexcept:
         _max_m(std::move(other._max_m)), _max_n(std::move(other._max_n)), _data(std::move(other._data))
         { other._data = nullptr; }
+
+    /**
+     * Constructs a new matrix by copying an existing vector
+     *
+     * @param other                 Vector to copy
+     */
+    template <typename = typename
+        std::enable_if<std::is_same<Vector<value_type>, Vector<value_type>>::value>::type>
+    explicit Matrix(const Vector<value_type>& other):
+        Matrix(other._matrix) {}
+
+    /**
+     * Move sementic implementation for Matrix, by Vector
+     *
+     * @param other                 Vector to move
+     */
+    template <typename = typename
+        std::enable_if<std::is_same<Vector<value_type>, Vector<value_type>>::value>::type>
+    explicit Matrix(Vector<value_type>&& other) noexcept:
+        Matrix(std::move(other._matrix)) {}
 
     /**
      * Copies the given matrix into this current one
@@ -201,6 +222,56 @@ public:
     }
 
     /**
+     * Calculates the multiplication of 2 matrixes and assign result
+     * to the current matrix
+     *
+     * @param rhs                   Matrix to multiplicate
+     * @return                      This matrix
+     *
+     * @exception std::logic_error  Given matrix doesn't match requirements
+     */
+    Matrix& operator*=(const Matrix& rhs)
+    {
+        if (this->_max_n != rhs._max_m)
+            throw std::logic_error("incompatible for multiplication");
+
+        Matrix result(this->_max_m, rhs._max_n);
+        for (size_type m = 0; m < this->_max_m; ++m)
+            for (size_type n = 0; n < rhs._max_n; ++n)
+            {
+                value_type tmp = value_type();
+                for (size_type p = 0; p < this->_max_n; ++p)
+                    tmp = std::fma((*this)[{m, p}], rhs[{p, n}], tmp);
+                result[{m, n}] = tmp;
+            }
+
+        *this = std::move(result);
+        return *this;
+    }
+
+    /**
+     * Calculates the multiplication of a matrix with a vector and assign result
+     * to the current matrix
+     *
+     * @param rhs                   Vector to multiplicate
+     * @return                      This matrix
+     *
+     * @exception std::logic_error  Given vector doesn't match requirements
+     */
+    Matrix& operator*=(const Vector<value_type>& rhs)
+    {
+        if (this->_max_n != rhs.size())
+            throw std::logic_error("incompatible for multiplication");
+
+        Matrix result(this->_max_n, 1);
+        for (size_type m = 0; m < this->_max_m; ++m)
+            for (size_type n = 0; n < this->_max_n; ++n)
+                result[{m, 0}] = std::fma((*this)[{m, n}], rhs[n], result[{m, 0}]);
+        *this = std::move(result);
+        return *this;
+    }
+
+    /**
      * Calculates the addition of 2 matrixes and returns a new matrix
      * containing the result
      *
@@ -244,6 +315,38 @@ public:
         Matrix tmp = *this;
         tmp *= rhs;
         return tmp;
+    }
+
+    /**
+     * Calculates the multiplication of 2 matrixes and returns a new matrix
+     * containing the result
+     *
+     * @param rhs                   Matrix to multiplicate
+     * @return                      New matrix containing result
+     *
+     * @exception std::logic_error  Given matrix doesn't match requirements
+     */
+    Matrix operator*(const Matrix& rhs) const
+    {
+        Matrix tmp = *this;
+        tmp *= rhs;
+        return tmp;
+    }
+
+    /**
+     * Calculates the multiplication of a matrix with a vector and returns a new matrix
+     * containing the result
+     *
+     * @param rhs                   Vector to multiplicate
+     * @return                      New matrix containing result
+     *
+     * @exception std::logic_error  Given vector doesn't match requirements
+     */
+    Vector<value_type> operator*(const Vector<value_type>& rhs) const
+    {
+        Matrix tmp = *this;
+        tmp *= rhs;
+        return Vector<value_type>(std::move(tmp));
     }
 
     /**
@@ -331,6 +434,14 @@ public:
      */
     constexpr bool empty() const
         { return !this->_max_m || !this->_max_n; }
+
+    /**
+     * Checks if the matrix' shape is square
+     *
+     * @return                      TRUE if shape is square, otherwise FALSE
+     */
+    constexpr bool square() const
+        { return this->_max_m == this->_max_n; }
 
     /**
      * Retrieve the amount of values within the matrix
@@ -426,9 +537,7 @@ public:
     {
         if (this->_max_n != 1)
             throw std::logic_error("matrix is too wide to be converted into vector");
-        Vector<K> tmp(0);
-        tmp._matrix = *this;
-        return tmp;
+        return Vector<value_type>(*this);
     }
 
 private:
