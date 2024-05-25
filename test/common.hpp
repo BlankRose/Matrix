@@ -16,6 +16,5 @@
 #include <Matrix.hpp>
 #include <Vector.hpp>
 #include <maths.hpp>
-#include <cmath>
 
 #endif //COMMON_HPP

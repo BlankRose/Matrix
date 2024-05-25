@@ -12,16 +12,28 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
+#include <cmath>
+#include <vector>
+#include <iostream>
+
+// Forward declaration
+template < class K >
+class Matrix;
+
 #include "Matrix.hpp"
 
+/**
+ * Represents a mathematical vector, acting as a wrapper for Matrix
+ *
+ * @tparam K    Vector's inner working type
+ */
 template < class K >
 class Vector
 {
 public:
-    using matrix_type = Matrix<K>;
-    using value_type  = typename matrix_type::value_type;
-    using size_type   = typename matrix_type::size_type;
-    using shape_type  = typename matrix_type::shape_type;
+    using value_type  = typename Matrix<K>::value_type;
+    using size_type   = typename Matrix<K>::size_type;
+    using shape_type  = typename Matrix<K>::shape_type;
 
     Vector() = delete;
     ~Vector() = default;
@@ -106,10 +118,19 @@ public:
         { return this->_matrix[{m, 0}]; }
 
     constexpr shape_type shape() const noexcept
-        { return { this->_matrix.shape().first, 1 }; }
+        { return { this->_matrix.height(), 1 }; }
+
+    constexpr size_type height() const noexcept
+        { return this->_matrix.height(); }
+
+    constexpr size_type width() const noexcept
+        { return 1; }
+
+    constexpr bool empty() const
+        { return this->_matrix.empty(); }
 
     constexpr size_type size() const noexcept
-        { return this->_matrix.shape().first; }
+        { return this->_matrix.height(); }
 
     constexpr bool has(const size_type& m) const noexcept
         { return this->_matrix.has(m, 0); }
@@ -129,20 +150,19 @@ public:
         return result;
     }
 
-    matrix_type to_matrix() const
+    /**
+     * Converts the vector into a matrix by copy
+     *
+     * @return                      Ready to use matrix
+     * @exception std::bad_alloc    Allocation failure
+     */
+    Matrix<value_type> to_matrix() const
         { return _matrix; }
 
-    static Vector from_matrix(const matrix_type& matrix)
-    {
-        if (matrix.shape().second != 1)
-            throw std::logic_error("matrix is too wide to be converted into vector");
-        Vector tmp(0);
-        tmp._matrix = std::move(matrix);
-        return tmp;
-    }
-
 private:
-    matrix_type     _matrix;
+    friend Matrix<value_type>;
+
+    Matrix<value_type>     _matrix; // Vector's inner matrix
 };
 
 template < class K >
@@ -160,6 +180,10 @@ bool operator!=(const Matrix<K>& lhs, const Vector<K>& rhs)
 template < class K >
 std::ostream& operator<<(std::ostream& out, const Vector<K>& value)
     { return out << value.to_matrix(); }
+
+using f64Vector = Vector<double>;
+using i64Vector = Vector<long long>;
+using u64Vector = Vector<unsigned long long>;
 
 using f32Vector = Vector<float>;
 using i32Vector = Vector<int>;

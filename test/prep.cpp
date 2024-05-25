@@ -64,7 +64,7 @@ int main()
         assert_eq(b.has(2) == true);
         assert_eq(b.has(4) == false);
         assert_eq(b.to_matrix() == c);
-        assert_eq(b == f32Vector::from_matrix(c));
+        assert_eq(b == c.to_vector());
         assert_eq(b == c);
 
         results();

@@ -12,9 +12,14 @@
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
 
-#include <cmath>
 #include <vector>
 #include <iostream>
+
+// Forward declaration..
+template < class K >
+class Vector;
+
+#include "Vector.hpp"
 
 /**
  * Represents a mathematical matrix, with various utilities functions
@@ -41,7 +46,6 @@ public:
      * @param value                 Default value to fill the matrix with
      *
      * @exception std::bad_alloc    Allocation failure
-     * @note                        Time Complexity: O(N)
      */
     Matrix(const size_type& height, const size_type& width, const value_type& value = value_type()):
         _max_m(height), _max_n(width), _data(new value_type[height * width])
@@ -59,7 +63,6 @@ public:
      *
      * @exception std::out_of_range Given array is too short
      * @exception std::bad_alloc    Allocation failure
-     * @note                        Time Complexity: O(N)
      */
     Matrix(const size_type& height, const size_type& width, const std::vector<value_type>& data):
         _max_m(height), _max_n(width), _data(new value_type[_max_m * _max_n])
@@ -75,7 +78,6 @@ public:
      *
      * @exception std::out_of_range Given matrix is not properly shaped
      * @exception std::bad_alloc    Allocation failure
-     * @note                        Time Complexity: O(N)
      */
     explicit Matrix(const std::vector<std::vector<K>>& data):
         _max_m(data.size()), _max_n(data.empty() ? 0 : data[0].size()), _data(new value_type[_max_m * _max_n])
@@ -91,7 +93,6 @@ public:
      * @param other                 Matrix to copy
      *
      * @exception std::bad_alloc    Allocation failure
-     * @note                        Time Complexity: O(N)
      */
     Matrix(const Matrix& other):
         _max_m(other._max_m), _max_n(other._max_n), _data(new value_type[_max_m * _max_n])
@@ -104,7 +105,6 @@ public:
      * Move sementic implementation for Matrix
      *
      * @param other                 Matrix to move
-     * @note                        Time Complexity: O(1)
      */
     Matrix(Matrix&& other) noexcept:
         _max_m(std::move(other._max_m)), _max_n(std::move(other._max_n)), _data(std::move(other._data))
@@ -114,10 +114,9 @@ public:
      * Copies the given matrix into this current one
      *
      * @param rhs                   Matrix to copy
-     *
      * @return                      This matrix
+     *
      * @exception std::bad_alloc    Allocation failed
-     * @note                        Time Complexity: O(N)
      */
     Matrix& operator=(const Matrix& rhs)
     {
@@ -138,9 +137,7 @@ public:
      * Moves the given matrix into this current one
      *
      * @param rhs                   Matrix to move
-     *
      * @return                      This matrix
-     * @note                        Time Complexity: O(1)
      */
     Matrix& operator=(Matrix&& rhs) noexcept
     {
@@ -156,13 +153,13 @@ public:
     }
 
     /**
-     * Calculates the addition of 2 matrixes and assign result to the current matrix
+     * Calculates the addition of 2 matrixes and assign result
+     * to the current matrix
      *
      * @param rhs                   Matrix to add
-     *
      * @return                      This matrix
+     *
      * @exception std::logic_error  Given matrix is of different shape
-     * @note                        Time Complexity: O(N)
      */
     Matrix& operator+=(const Matrix& rhs)
     {
@@ -173,13 +170,13 @@ public:
     }
 
     /**
-     * Calculates the subtraction of 2 matrixes and assign result to the current matrix
+     * Calculates the subtraction of 2 matrixes and assign result
+     * to the current matrix
      *
      * @param rhs                   Matrix to subtract
-     *
      * @return                      This matrix
+     *
      * @exception std::logic_error  Given matrix is of different shape
-     * @note                        Time Complexity: O(N)
      */
     Matrix& operator-=(const Matrix& rhs)
     {
@@ -190,12 +187,11 @@ public:
     }
 
     /**
-     * Calculates the multiplication of a given scalar and assign result to the current matrix
+     * Calculates the multiplication of a given scalar and assign result
+     * to the current matrix
      *
      * @param rhs                   Scalar value
-     *
      * @return                      This matrix
-     * @note                        Time Complexity: O(N)
      */
     Matrix& operator*=(const value_type& rhs) noexcept
     {
@@ -205,13 +201,13 @@ public:
     }
 
     /**
-     * Calculates the addition of 2 matrixes and returns a new matrix containing the result
+     * Calculates the addition of 2 matrixes and returns a new matrix
+     * containing the result
      *
      * @param rhs                   Matrix to add
-     *
      * @return                      New matrix containing result
+     *
      * @exception std::logic_error  Given matrix is of different shape
-     * @note                        Time Complexity: O(N)
      */
     Matrix operator+(const Matrix& rhs) const
     {
@@ -221,13 +217,13 @@ public:
     }
 
     /**
-     * Calculates the subtraction of 2 matrixes and returns a new matrix containing the result
+     * Calculates the subtraction of 2 matrixes and returns a new matrix
+     * containing the result
      *
      * @param rhs                   Matrix to subtract
-     *
      * @return                      New matrix containing result
+     *
      * @exception std::logic_error  Given matrix is of different shape
-     * @note                        Time Complexity: O(N)
      */
     Matrix operator-(const Matrix& rhs) const
     {
@@ -237,12 +233,11 @@ public:
     }
 
     /**
-     * Calculates the multiplication of a given scalar and returns a new matrix containing the result
+     * Calculates the multiplication of a given scalar and returns a new matrix
+     * containing the result
      *
      * @param rhs                   Scalar value
-     *
      * @return                      New matrix containing result
-     * @note                        Time Complexity: O(N)
      */
     Matrix operator*(const value_type& rhs) const noexcept
     {
@@ -256,10 +251,9 @@ public:
      *
      * @param m                     Height position (usually denoted `m`)
      * @param n                     Width position (usually denoted `n`)
-     *
      * @return                      Reference to value at given coordinates
+     *
      * @exception std::out_of_range Given coordinates points out of the matrix
-     * @note                        Time Complexity: O(1)
      */
     value_type& at(const size_type& m, const size_type& n)
     {
@@ -274,10 +268,9 @@ public:
      *
      * @param m                     Height position (usually denoted `m`)
      * @param n                     Width position (usually denoted `n`)
-     *
      * @return                      Const reference to value at given coordinates
+     *
      * @exception std::out_of_range Given coordinates points out of the matrix
-     * @note                        Time Complexity: O(1)
      */
     const value_type& at(const size_type& m, const size_type& n) const
     {
@@ -292,9 +285,7 @@ public:
      * (Caution: does not checks for bounds)
      *
      * @param pos                   Position of element to retrieve at
-     *
      * @return                      Reference to value at given coordinates
-     * @note                        Time Complexity: O(1)
      */
     value_type& operator[](const shape_type& pos)
         { return this->_data[pos.first * this->_max_n + pos.second]; }
@@ -304,9 +295,7 @@ public:
      * (Caution: does not checks for bounds)
      *
      * @param pos                   Position of element to retrieve at
-     *
      * @return                      Const reference to value at given coordinates
-     * @note                        Time Complexity: O(1)
      */
     const value_type& operator[](const shape_type& pos) const
         { return this->_data[pos.first * this->_max_n + pos.second]; }
@@ -315,16 +304,38 @@ public:
      * Retrieves the shape of the matrix
      *
      * @return                      Height-width pair, representing the shape
-     * @note                        Time Complexity: O(1)
      */
     constexpr shape_type shape() const noexcept
         { return {this->_max_m, this->_max_n}; }
 
     /**
+     * Retrieves the height of the matrix
+     *
+     * @return                      Matrix' height
+     */
+    constexpr size_type height() const noexcept
+        { return this->_max_m; }
+
+    /**
+     * Retrieves the width of the matrix
+     *
+     * @return                      Matrix' width
+     */
+    constexpr size_type width() const noexcept
+        { return this->_max_n; }
+
+    /**
+     * Checks if the matrix contains no values, having 0-length rows or columns
+     *
+     * @return                      TRUE if empty, otherwise FALSE
+     */
+    constexpr bool empty() const
+        { return !this->_max_m || !this->_max_n; }
+
+    /**
      * Retrieve the amount of values within the matrix
      *
      * @return                      Amount of values
-     * @note                        Time Complexity: O(1)
      */
     constexpr size_type size() const noexcept
         { return this->_max_m * this->_max_n; }
@@ -334,9 +345,7 @@ public:
     *
      * @param m                     Height position (usually denoted `m`)
      * @param n                     Width position (usually denoted `n`)
-     *
      * @return                      TRUE if within bounds, otherwise FALSE
-     * @note                        Time Complexity: O(1)
      */
     constexpr bool has(const size_type& m, const size_type& n) const noexcept
         { return m < this->_max_m && n < this->_max_n; }
@@ -350,7 +359,6 @@ public:
      * @param value                 Value to inplace in case of new spots
      *
      * @exception std::bad_alloc    Allocation failure
-     * @note                        Time Complexity: O(n)
      */
     void resize(const size_type& height, const size_type& width, const value_type& value = value_type())
     {
@@ -366,6 +374,12 @@ public:
         *this = std::move(tmp);
     }
 
+    /**
+     * Checks if the two matrix are same
+     *
+     * @param rhs                   Matrix to compare to
+     * @return                      TRUE if same, otherwise FALSE
+     */
     bool operator==(const Matrix& rhs) const
     {
         if (this->shape() != rhs.shape())
@@ -376,6 +390,12 @@ public:
         return true;
     }
 
+    /**
+     * Checks if the two matrix are different
+     *
+     * @param rhs                   Matrix to compare to
+     * @return                      TRUE if different, otherwise FALSE
+     */
     bool operator!=(const Matrix& rhs) const
         { return !(*this == rhs); }
 
@@ -386,7 +406,6 @@ public:
      * @param other                 Matrix to compare to
      *
      * @exception std::logic_error  Given matrix is of different shape
-     * @note                        Time Complexity: O(1)
      */
     void check_sizes(const Matrix& other) const
     {
@@ -394,16 +413,53 @@ public:
             throw std::logic_error("cannot operate with different matrix sizes");
     }
 
+    /**
+     * Converts the matrix into a vector by copy, if possible,
+     * otherwise throws an exception
+     *
+     * @return                      Ready to use vector
+     *
+     * @exception std::logic_error  Matrix is too wide to fit in a vector
+     * @exception std::bad_alloc    Allocation failure
+     */
+    Vector<value_type> to_vector() const
+    {
+        if (this->_max_n != 1)
+            throw std::logic_error("matrix is too wide to be converted into vector");
+        Vector<K> tmp(0);
+        tmp._matrix = *this;
+        return tmp;
+    }
+
 private:
+    friend Vector<value_type>;
+
     size_type       _max_m; // Matrix' height
     size_type       _max_n; // Matrix' width
     value_type *    _data;  // Matrix' content
 };
 
+/**
+ * Calculates the multiplication of a given scalar and returns a new matrix
+ * containing the result
+ *
+ * @tparam K        Matrix' inner working type
+ * @param lhs       Scalar value
+ * @param rhs       Matrix to compute
+ * @return          New matrix containing result
+ */
 template < class K >
 Matrix<K> operator*(const typename Matrix<K>::value_type& lhs, const Matrix<K>& rhs) noexcept
     { return rhs.operator*(lhs); }
 
+/**
+ * Writes the matrix' internal structure on the given output stream
+ *
+ * @tparam K        Matrix' inner working type
+ * @param out       Output stream to write on
+ * @param value     Matrix to write
+ * @return          Returns output stream for chaining
+ */
 template < class K >
 std::ostream& operator<<(std::ostream& out, const Matrix<K>& value)
 {
@@ -420,8 +476,12 @@ std::ostream& operator<<(std::ostream& out, const Matrix<K>& value)
     return out;
 }
 
-using f32Matrix = Matrix<float>;
-using i32Matrix = Matrix<int>;
-using u32Matrix = Matrix<unsigned int>;
+using f64Matrix = Matrix<double>;               // Helper type for double Matrix
+using i64Matrix = Matrix<long long>;            // Helper type for long Matrix
+using u64Matrix = Matrix<unsigned long long>;   // Helper type for unsigned long Matrix
+
+using f32Matrix = Matrix<float>;                // Helper type for float Matrix
+using i32Matrix = Matrix<int>;                  // Helper type for integer Matrx
+using u32Matrix = Matrix<unsigned int>;         // Helper type for unsigned Matrix
 
 #endif //MATRIX_HPP
