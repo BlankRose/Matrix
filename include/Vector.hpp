@@ -120,6 +120,15 @@ public:
     void check_sizes(const Vector& other) const
         { return this->_matrix.check_sizes(other._matrix); }
 
+    value_type dot(const Vector& other) const
+    {
+        this->check_sizes(other);
+        value_type result = value_type();
+        for (size_type i = 0; i < this->size(); ++i)
+            result = std::fma((*this)[i], other[i], result);
+        return result;
+    }
+
     matrix_type to_matrix() const
         { return _matrix; }
 

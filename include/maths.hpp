@@ -36,11 +36,7 @@ Vector<K> linear_combination(const std::vector<Vector<K>>& u, const std::vector<
 
 template < class V >
 V lerp(const V& u, const V& v, const float& t)
-{
-    V dist = v - u;
-    V aprox = dist * t;
-    return u + aprox;
-}
+    { return u + (v - u) * t; }
 
 template < class V >
 V round_n(const V& value, const size_t& decimals)
@@ -50,14 +46,5 @@ V round_n(const V& value, const size_t& decimals)
         mult *= 10.;
     return static_cast<V>(static_cast<int>(value * mult) / mult);
 }
-
-// u = 0, v = 1, t
-// dist = v - u = 1 - 0 = 1
-// aprox = 1t
-// u + 1t
-
-// t = 0 --> 0 + (1 * 0)  = 0 + 0  = 0
-// t = 1 --> 0 + (1 * 1)  = 0 + 1  = 1
-// t = .5 -> 0 + (1 * .5) = 0 + .5 = .5
 
 #endif //MATHS_HPP

@@ -12,6 +12,7 @@
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
 
+#include <cmath>
 #include <vector>
 #include <iostream>
 
