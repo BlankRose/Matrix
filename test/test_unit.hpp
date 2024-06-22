@@ -14,6 +14,8 @@
 
 #include <iostream>
 
+#define FLOAT_MARGIN 0.001
+
 #define title(expr) \
     size_t total = 0; \
     size_t success = 0; \
@@ -35,6 +37,20 @@
         else \
         { \
             std::cout << "\033[1;32m[OK] Success: \033[22m"#expr"\033[0m" << std::endl; \
+            ++success; \
+        } \
+    } while (false)
+
+#define assert_feq(expr, expected) \
+    do { \
+        ++total; \
+        auto res = expr; \
+        if (res < expected - FLOAT_MARGIN || res > expected + FLOAT_MARGIN) \
+            std::cout << "\033[1;31m[KO] Failure: \033[22m"#expr" == "#expected \
+                         "\033[0;2m (Got: " << res << ")\033[0m" << std::endl; \
+        else \
+        { \
+            std::cout << "\033[1;32m[OK] Success: \033[22m"#expr" == "#expected"\033[0m" << std::endl; \
             ++success; \
         } \
     } while (false)

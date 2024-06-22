@@ -15,6 +15,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include "general.hpp"
 
 // Forward declaration
 template < class K >
@@ -159,12 +160,13 @@ public:
         this->check_sizes(other);
         value_type result = value_type();
         for (size_type i = 0; i < this->size(); ++i)
-            result = std::fma((*this)[i], other[i], result);
+            result = maths::fma((*this)[i], other[i], result);
         return result;
     }
 
     /**
      * Calculate the 1-norm (Taxicab norm) for this vector
+     * --> Retrieves: Absolute sum of vector's components
      *
      * @return                      Value of the norm
      */
@@ -178,6 +180,7 @@ public:
 
     /**
      * Calculates the 2-norm (Euclidean norm) for this vector
+     * --> Retrieves: Length of the vector
      *
      * @return                      Value of the norm
      */
@@ -190,7 +193,8 @@ public:
     }
 
     /**
-     * Calculates the inf-norm (Supremum norm) for this vector
+     * Calculates the inf-norm (Supremum norm) for this vector.
+     * --> Retrieves: Highest absolute number
      *
      * @return                      Value of the norm
      */

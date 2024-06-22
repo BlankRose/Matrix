@@ -14,13 +14,13 @@
 int main()
 {
     {
-        title("Builtins linear interpolaton");
+        title("Builtins linear interpolation");
 
         assert_eq(lerp(0., 1., 0) == 0);
         assert_eq(lerp(0., 1., 1) == 1);
         assert_eq(lerp(0., 1., .5) == .5);
-        assert_eq(round_n(lerp(21., 42., .3), 2) == 27.3);
-        assert_eq(round_n(lerp(42., 21., .7), 2) == 27.3);
+        assert_feq(lerp(21., 42., .3), 27.3);
+        assert_feq(lerp(42., 21., .7), 27.3);
 
         results();
     }

@@ -15,8 +15,9 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include "general.hpp"
 
-// Forward declaration..
+// Forward declaration...
 template < class K >
 class Vector;
 
@@ -26,7 +27,7 @@ class Vector;
  * Represents a mathematical matrix, with various utilities functions
  * and overloads to simplify its usage and calculus
  *
- * @tparam K    Matrix' inner working type
+ * @tparam K    Matrix inner working type
  */
 template < class K >
 class Matrix
@@ -103,12 +104,12 @@ public:
     }
 
     /**
-     * Move sementic implementation for Matrix
+     * Move semantic implementation for Matrix
      *
      * @param other                 Matrix to move
      */
     Matrix(Matrix&& other) noexcept:
-        _max_m(std::move(other._max_m)), _max_n(std::move(other._max_n)), _data(std::move(other._data))
+        _max_m(other._max_m), _max_n(other._max_n), _data(std::move(other._data))
         { other._data = nullptr; }
 
     /**
@@ -122,7 +123,7 @@ public:
         Matrix(other._matrix) {}
 
     /**
-     * Move sementic implementation for Matrix, by Vector
+     * Move semantic implementation for Matrix, by Vector
      *
      * @param other                 Vector to move
      */
@@ -167,14 +168,14 @@ public:
         delete[] this->_data;
 
         this->_data = std::move(rhs._data);
-        this->_max_m = std::move(rhs._max_m);
-        this->_max_n = std::move(rhs._max_n);
+        this->_max_m = rhs._max_m;
+        this->_max_n = rhs._max_n;
         rhs._data = nullptr;
         return *this;
     }
 
     /**
-     * Calculates the addition of 2 matrixes and assign result
+     * Calculates the addition of 2 matrix and assign result
      * to the current matrix
      *
      * @param rhs                   Matrix to add
@@ -191,7 +192,7 @@ public:
     }
 
     /**
-     * Calculates the subtraction of 2 matrixes and assign result
+     * Calculates the subtraction of 2 matrix and assign result
      * to the current matrix
      *
      * @param rhs                   Matrix to subtract
@@ -222,10 +223,10 @@ public:
     }
 
     /**
-     * Calculates the multiplication of 2 matrixes and assign result
+     * Calculates the multiplication of 2 matrix and assign result
      * to the current matrix
      *
-     * @param rhs                   Matrix to multiplicate
+     * @param rhs                   Matrix to multiplicative
      * @return                      This matrix
      *
      * @exception std::logic_error  Given matrix doesn't match requirements
@@ -241,7 +242,7 @@ public:
             {
                 value_type tmp = value_type();
                 for (size_type p = 0; p < this->_max_n; ++p)
-                    tmp = std::fma((*this)[{m, p}], rhs[{p, n}], tmp);
+                    tmp = maths::fma((*this)[{m, p}], rhs[{p, n}], tmp);
                 result[{m, n}] = tmp;
             }
 
@@ -253,7 +254,7 @@ public:
      * Calculates the multiplication of a matrix with a vector and assign result
      * to the current matrix
      *
-     * @param rhs                   Vector to multiplicate
+     * @param rhs                   Vector to multiplicative
      * @return                      This matrix
      *
      * @exception std::logic_error  Given vector doesn't match requirements
@@ -266,13 +267,13 @@ public:
         Matrix result(this->_max_n, 1);
         for (size_type m = 0; m < this->_max_m; ++m)
             for (size_type n = 0; n < this->_max_n; ++n)
-                result[{m, 0}] = std::fma((*this)[{m, n}], rhs[n], result[{m, 0}]);
+                result[{m, 0}] = maths::fma((*this)[{m, n}], rhs[n], result[{m, 0}]);
         *this = std::move(result);
         return *this;
     }
 
     /**
-     * Calculates the addition of 2 matrixes and returns a new matrix
+     * Calculates the addition of 2 matrix and returns a new matrix
      * containing the result
      *
      * @param rhs                   Matrix to add
@@ -288,7 +289,7 @@ public:
     }
 
     /**
-     * Calculates the subtraction of 2 matrixes and returns a new matrix
+     * Calculates the subtraction of 2 matrix and returns a new matrix
      * containing the result
      *
      * @param rhs                   Matrix to subtract
@@ -318,10 +319,10 @@ public:
     }
 
     /**
-     * Calculates the multiplication of 2 matrixes and returns a new matrix
+     * Calculates the multiplication of 2 matrix and returns a new matrix
      * containing the result
      *
-     * @param rhs                   Matrix to multiplicate
+     * @param rhs                   Matrix to multiplicative
      * @return                      New matrix containing result
      *
      * @exception std::logic_error  Given matrix doesn't match requirements
@@ -337,7 +338,7 @@ public:
      * Calculates the multiplication of a matrix with a vector and returns a new matrix
      * containing the result
      *
-     * @param rhs                   Vector to multiplicate
+     * @param rhs                   Vector to multiplicative
      * @return                      New matrix containing result
      *
      * @exception std::logic_error  Given vector doesn't match requirements
@@ -385,7 +386,7 @@ public:
 
     /**
      * Retrieves the element at the given coordinates
-     * (Caution: does not checks for bounds)
+     * (Caution: does not check for bounds)
      *
      * @param pos                   Position of element to retrieve at
      * @return                      Reference to value at given coordinates
@@ -395,7 +396,7 @@ public:
 
     /**
      * Retrieves the element at the given coordinates
-     * (Caution: does not checks for bounds)
+     * (Caution: does not check for bounds)
      *
      * @param pos                   Position of element to retrieve at
      * @return                      Const reference to value at given coordinates
@@ -414,7 +415,7 @@ public:
     /**
      * Retrieves the height of the matrix
      *
-     * @return                      Matrix' height
+     * @return                      Matrix height
      */
     constexpr size_type height() const noexcept
         { return this->_max_m; }
@@ -422,7 +423,7 @@ public:
     /**
      * Retrieves the width of the matrix
      *
-     * @return                      Matrix' width
+     * @return                      Matrix width
      */
     constexpr size_type width() const noexcept
         { return this->_max_n; }
@@ -436,7 +437,7 @@ public:
         { return !this->_max_m || !this->_max_n; }
 
     /**
-     * Checks if the matrix' shape is square
+     * Checks if the matrix shape is square
      *
      * @return                      TRUE if shape is square, otherwise FALSE
      */
@@ -465,8 +466,8 @@ public:
      * Resizes the matrix to the given coordinates, and uses the value
      * for newly created spots
      *
-     * @param height                New matrix' height
-     * @param width                 New matrix' width
+     * @param height                New matrix height
+     * @param width                 New matrix width
      * @param value                 Value to inplace in case of new spots
      *
      * @exception std::bad_alloc    Allocation failure
@@ -500,6 +501,24 @@ public:
     }
 
     /**
+     * Calculates the trace of a square matrix, denoted "tr(A)"
+     * --> Sum of elements in main diagonal
+     *
+     * @return                      Trace value of matrix
+     *
+     * @exception std::logic_error  Matrix needs is not square
+     */
+    value_type trace() const
+    {
+        if (!this->square())
+            throw std::logic_error("trace can only be calculated on square matrix");
+        value_type value = value_type();
+        for (size_type n = 0; n < this->_max_n; ++n)
+            value += (*this)[{n, n}];
+        return value;
+    }
+
+    /**
      * Checks if the two matrix are same
      *
      * @param rhs                   Matrix to compare to
@@ -526,7 +545,7 @@ public:
 
     /**
      * Checks if given matrix has the same shape as the current one, otherwise
-     * throws an logic error exception
+     * throws a logic error exception
      *
      * @param other                 Matrix to compare to
      *
@@ -536,6 +555,20 @@ public:
     {
         if (this->shape() != other.shape())
             throw std::logic_error("cannot operate with different matrix sizes");
+    }
+
+    /**
+     * Resolves the matrix with absolute values
+     *
+     * @return                      New matrix with only absolutes values
+     */
+    Matrix absolute() const
+    {
+        Matrix tmp = *this;
+        for (size_type i = 0; i < this->size(); ++i)
+            if (tmp[i] < value_type())
+                tmp[i] = -tmp[i];
+        return tmp;
     }
 
     /**
@@ -557,16 +590,16 @@ public:
 private:
     friend Vector<value_type>;
 
-    size_type       _max_m; // Matrix' height
-    size_type       _max_n; // Matrix' width
-    value_type *    _data;  // Matrix' content
+    size_type       _max_m; // Matrix height
+    size_type       _max_n; // Matrix width
+    value_type *    _data;  // Matrix content
 };
 
 /**
  * Calculates the multiplication of a given scalar and returns a new matrix
  * containing the result
  *
- * @tparam K        Matrix' inner working type
+ * @tparam K        Matrix inner working type
  * @param lhs       Scalar value
  * @param rhs       Matrix to compute
  * @return          New matrix containing result
@@ -576,9 +609,9 @@ Matrix<K> operator*(const typename Matrix<K>::value_type& lhs, const Matrix<K>& 
     { return rhs.operator*(lhs); }
 
 /**
- * Writes the matrix' internal structure on the given output stream
+ * Writes the matrix internal structure on the given output stream
  *
- * @tparam K        Matrix' inner working type
+ * @tparam K        Matrix inner working type
  * @param out       Output stream to write on
  * @param value     Matrix to write
  * @return          Returns output stream for chaining
@@ -604,7 +637,7 @@ using i64Matrix = Matrix<long long>;            // Helper type for long Matrix
 using u64Matrix = Matrix<unsigned long long>;   // Helper type for unsigned long Matrix
 
 using f32Matrix = Matrix<float>;                // Helper type for float Matrix
-using i32Matrix = Matrix<int>;                  // Helper type for integer Matrx
+using i32Matrix = Matrix<int>;                  // Helper type for integer Matrix
 using u32Matrix = Matrix<unsigned int>;         // Helper type for unsigned Matrix
 
 #endif //MATRIX_HPP

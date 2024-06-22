@@ -22,12 +22,12 @@ int main()
 
     init_display(f32Vector b({1, 2, 3}));
     assert_eq(b.norm_1() == 6);
-    assert_eq(round_n(b.norm_2(), 3) == 3.741);
+    assert_feq(b.norm_2(), 3.741);
     assert_eq(b.norm_inf() == 3);
 
     init_display(f32Vector c({-1, -2}));
     assert_eq(c.norm_1() == 3);
-    assert_eq(round_n(c.norm_2(), 3) == 2.236);
+    assert_feq(c.norm_2(), 2.236);
     assert_eq(c.norm_inf() == 2);
 
     results();
