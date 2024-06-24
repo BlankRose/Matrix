@@ -587,11 +587,133 @@ public:
         return Vector<value_type>(*this);
     }
 
+    /**
+     * Calculates the Reduced Row Echelon Form
+     * and applies on the current matrix
+     */
+    void row_echelon_inplace()
+    {
+        size_type n = 0;
+        for (size_type m = 0; m < this->_max_m; ++m)
+        {
+            if (n >= this->_max_n)
+                return;
+            size_type i = m;
+            while (this->at(i, n) == 0)
+                if (++i >= this->_max_m)
+                {
+                    i = m;
+                    if (++n >= this->_max_n)
+                        return;
+                }
+            this->swap_rows(i, m);
+            this->divide_row(m, this->at(m, n));
+            for (i = 0; i < this->_max_m; ++i)
+                if (i != m)
+                    this->fma_row(i, m, -this->at(i, n));
+        }
+    }
+
+    /**
+     * Calculates the Reduced Row Echelon Form
+     * and returns it as a new matrix
+     *
+     * @return                      Result of Row echelon
+     */
+    Matrix row_echelon() const
+    {
+        Matrix tmp = *this;
+        tmp.row_echelon_inplace();
+        return tmp;
+    }
+
+    /**
+     * Swaps two rows, by swapping their contents
+     *
+     * @param a                     Index of first row
+     * @param b                     Index of second row
+     */
+    void swap_rows(const size_type& a, const size_type& b)
+    {
+        for (size_type n = 0; n < this->_max_n; ++n)
+            std::swap(this->at(a, n), this->at(b, n));
+    }
+
+    /**
+     * Swaps two columns, by swapping their contents
+     *
+     * @param a                     Index of first column
+     * @param b                     Index of second column
+     */
+    void swap_columns(const size_type& a, const size_type& b)
+    {
+        for (size_type m = 0; m < this->_max_m; ++m)
+            std::swap(this->at(m, a), this->at(m, b));
+    }
+
+    /**
+     * Divides an entire row by a given value
+     *
+     * @param m                     Index of row
+     * @param rhs                   Value to divide by
+     *
+     * @exception std::logic_error  Division by 0
+     */
+    void divide_row(const size_type& m, const value_type rhs)
+    {
+        for (size_type n = 0; n < this->_max_n; ++n)
+            this->at(m, n) /= rhs;
+    }
+
+    /**
+     * Divides an entire column by a given value
+     *
+     * @param n                     Index of column
+     * @param rhs                   Value to divide by
+     *
+     * @exception std::logic_error  Division by 0
+     */
+    void divide_column(const size_type& n, const value_type rhs)
+    {
+        for (size_type m = 0; m < this->_max_m; ++m)
+            this->at(m, n) /= rhs;
+    }
+
+    /**
+     * Calculates the fused multiply-add between
+     * two rows and a given multiplier
+     *
+     * @param a                     Index of first row
+     * @param b                     Index of second row
+     * @param value                 Value to multiply by
+     */
+    void fma_row(const size_type& a, const size_type& b, const value_type value)
+    {
+        for (size_type n = 0; n < this->_max_n; ++n)
+            // this->at(a, n) = maths::fma(value, this->at(b, n), this->at(a, n));
+            this->at(a, n) += value * this->at(b, n);
+    }
+
+    /**
+     * Calculates the fused multiply-add between
+     * two columns and a given multiplier
+     *
+     * @param a                     Index of first column
+     * @param b                     Index of second column
+     * @param value                 Value to multiply by
+     */
+    void fma_column(const size_type& a, const size_type& b, const value_type value)
+    {
+        for (size_type m = 0; m < this->_max_m; ++m)
+            // this->at(m, a) = maths::fma(value, this->at(m, b), this->at(m, a));
+            this->at(m, a) += value * this->at(m, b);
+    }
+
 private:
     friend Vector<value_type>;
 
-    size_type       _max_m; // Matrix height
-    size_type       _max_n; // Matrix width
+    size_type       _max_m; // Matrix height (amount of rows)
+    size_type       _max_n; // Matrix width (amount of columns)
     value_type *    _data;  // Matrix content
 };
 
