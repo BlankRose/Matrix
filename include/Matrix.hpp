@@ -628,6 +628,38 @@ public:
     }
 
     /**
+     * Calculates the determinant of the given matrix, denoted `det(A)`.
+     * If result is 0, it means it's a singular matrix (and has no inverse matrix).
+     * Used for solving systems of linear equations
+     *
+     * @return                      Determinant of given matrix
+     */
+    value_type determinant() const
+    {
+        // Required by properties of determinants
+        if (!this->_max_n || !this->_max_m)
+            return 1;
+
+        if (!this->square())
+            throw std::logic_error("determinant can only be calculated on square matrix");
+        switch (this->_max_n)
+        {
+        case 0:
+            return 1;
+        case 1:
+            return this->at(0, 0);
+        case 2:
+            return this->_det2x2();
+        case 3:
+            return this->_det3x3();
+        case 4:
+            return this->_det4x4();
+        default:
+            return this->_detHigh();
+        }
+    }
+
+    /**
      * Calculates the rank of a matrix, representing the amount
      * of independent rows / columns (or used dimension in vector space)
      *
@@ -730,6 +762,51 @@ public:
     }
 
 private:
+    /**
+     * Calculates the determinant of a 2x2 matrix
+     * (Used by Matrix.determinant() and Matrix._det3x3)
+     *
+     * @return                      Determinant of given matrix
+     */
+    value_type _det2x2()
+    {
+        return (*this)[{0, 0}] * (*this)[{1, 1}] - (*this)[{0, 1}] * (*this)[{1, 0}];
+    }
+
+    /**
+     * Calculates the determinant of a 4x4 matrix
+     * (Used by Matrix.determinant() and Matrix._det4x4)
+     *
+     * @return                      Determinant of given matrix
+     */
+    value_type _det3x3()
+    {
+        return 0;
+    }
+
+    /**
+     * Calculates the determinant of a 4x4 matrix
+     * (Used by Matrix.determinant and Matrix._detHigh)
+     *
+     * @return                      Determinant of given matrix
+     */
+    value_type _det4x4()
+    {
+        return 0;
+    }
+
+    /**
+     * Calculates the determinant of a higher matrix
+     * (Used by Matrix.determinant)
+     *
+     * @exception std::range_error  Not implemented yet
+     */
+    value_type _detHigh()
+    {
+        throw std::range_error("determinant for 5x5 matrix and above are not implemented yet..");
+    }
+
+protected:
     friend Vector<value_type>;
 
     size_type       _max_m; // Matrix height (amount of rows)
