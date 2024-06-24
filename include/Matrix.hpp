@@ -628,6 +628,26 @@ public:
     }
 
     /**
+     * Calculates the rank of a matrix, representing the amount
+     * of independent rows / columns (or used dimension in vector space)
+     *
+     * @return                      Rank of current matrix
+     */
+    size_type rank() const
+    {
+        Matrix tmp = this->row_echelon();
+        size_type rank = 0;
+        for (size_type m = 0; m < this->_max_m; ++m)
+            for (size_type n = 0; n < this->_max_n; ++n)
+                if (tmp.at(m, n) != 0)
+                {
+                    ++rank;
+                    break;
+                }
+        return rank;
+    }
+
+    /**
      * Swaps two rows, by swapping their contents
      *
      * @param a                     Index of first row
