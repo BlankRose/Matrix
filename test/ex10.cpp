@@ -11,9 +11,6 @@
 
 #include "common.hpp"
 
-// EXPLANATION SITE:
-// https://www.wikihow.com/Reduce-a-Matrix-to-Row-Echelon-Form
-
 int main()
 {
     title("Row-Echelon Form");

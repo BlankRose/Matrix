@@ -18,6 +18,7 @@ distance between the given bounds.
 (e.g. `0.5` means the value is right in between `a` and `b`,
 whereas `0.25` means the value is 25% away from `a` and 75% away from `b`)
 
+__FORMULA:__ `f(a, b, t) = a + (b — a) * t`\
 __NOTE:__ `lerp(a, b, 0) = a` and `lerp(a, b , 1) = b`
 
 --------------------------------------------------------------------------------
@@ -89,6 +90,48 @@ __REQUIREMENTS:__ Square Matrix
 
 --------------------------------------------------------------------------------
 
+# Cofactor
+
+Cofactor matrix, denoted `Cof(A)` or `C`, is composed of the cofactors of each element of
+the given matrix, can be used to obtain the adjoint, and later get the inverse matrix for exemple.
+
+Each cofactor element is obtained by calculating the determinant of the sub-matrix `i-1 x j-1`,
+which is a copy of `A`, without the `i`th row and `j`th column, multiplied by `(-1) ^ (i + j)`
+
+__NOTE:__ 0x0 and 1x1 matrix are unchanged\
+__FORMULA:__ `Cij = ((-1) ^ (i + j)) * det(Aij)` on each cell\
+__REQUIREMENTS:__ Square Matrix
+
+- Calculator: https://www.emathhelp.net/en/calculators/linear-algebra/cofactor-matrix-calculator/
+
+--------------------------------------------------------------------------------
+
+# Adjoint
+
+Adjoin matrix, denoted `adj(A)`, is simply the transposed cofactor of a given matrix,
+can be used for calculating the inverse matrix for exemple.
+
+__FORMULA:__ `adj(A) = Ct`\
+__REQUIREMENTS:__ Square Matrix
+
+- Calculator: https://www.emathhelp.net/en/calculators/linear-algebra/adjoint-matrix-calculator/
+
+--------------------------------------------------------------------------------
+
+# Inverse (ex12)
+
+Matrix when multiplied with its inverse, denoted as `A-1`, will produce their
+identity matrix. Inverse matrix are also used in solving systems of equations,
+graphics and various optimizations.
+
+__FORMULA:__ `A-1 = (1 / det(A)) * adj(A)`\
+__REQUIREMENTS:__ Square Matrix and non-zero determinant
+
+- Calculus in-depth: https://www.cuemath.com/algebra/inverse-of-a-matrix/
+- Inverse explanation: https://www.mathsisfun.com/algebra/matrix-inverse.html
+
+--------------------------------------------------------------------------------
+
 # Rank (ex13)
 
 Matrix rank, denoted `rank(A)` or `rk(A)`, determines how many rows / columns
@@ -98,4 +141,4 @@ equations for exemple (e.g. whether it has one, multiple or no solutions)
 __NOTE:__ Row rank is same as column rank
 
 - Calculus and explanation: https://www.cuemath.com/algebra/rank-of-a-matrix/
-- Importance explanation: https://math.stackexchange.com/questions/21100/importance-of-matrix-rank
+- Rank explanation: https://math.stackexchange.com/questions/21100/importance-of-matrix-rank

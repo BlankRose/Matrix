@@ -621,6 +621,8 @@ public:
      * and returns it as a new matrix
      *
      * @return                      Result of Row echelon
+     *
+     * @exception std::bad_alloc    Allocation failure
      */
     Matrix row_echelon() const
     {
@@ -636,7 +638,7 @@ public:
      *
      * @return                      Determinant of given matrix
      *
-     * @exception std::logic_error  Matrix needs is not square
+     * @exception std::logic_error  Matrix is not square
      */
     value_type determinant() const
     {
@@ -662,10 +664,130 @@ public:
     }
 
     /**
+     * Calculates the cofactor matrix of the matrix
+     * and applies its result to the current matrix
+     *
+     * @exception std::logic_error  Matrix is not square
+     * @exception std::bad_alloc    Allocation failure
+     */
+    void cofactor_inplace()
+    {
+        if (!this->_max_m || !this->_max_n)
+            return;
+        if (!this->square())
+            throw std::logic_error("cofactor can only be calculated on square matrix");
+        value_type a, b, c, d;
+        switch (this->_max_m)
+        {
+        case 0:
+        case 1:
+            // Cofactor for 0x0 and 1x1 matrix are same...
+            break;
+        case 2:
+            a = this->at(0, 0);
+            b = this->at(0, 1);
+            c = this->at(1, 0);
+            d = this->at(1, 1);
+            this->at(0, 0) = d;
+            this->at(0, 1) = c * -1;
+            this->at(1, 0) = b * -1;
+            this->at(1, 1) = a;
+            break;
+        default:
+            Matrix tmp = *this;
+            for (size_type m = 0; m < this->_max_m; ++m)
+                for (size_type n = 0; n < this->_max_n; ++n)
+                    tmp.at(m, n) = this->_single_cofactor(m, n);
+            *this = std::move(tmp);
+        }
+    }
+
+    /**
+     * Calculates the cofactor matrix of the matrix
+     * and returns it as a new matrix
+     *
+     * @return                      Cofactor matrix
+     *
+     * @exception std::logic_error  Matrix is not square
+     * @exception std::bad_alloc    Allocation failure
+     */
+    Matrix cofactor() const
+    {
+        Matrix tmp = *this;
+        tmp.cofactor_inplace();
+        return tmp;
+    }
+
+    /**
+     * Calculates the adjoint of the matrix
+     * and applies its result to the current matrix
+     *
+     * @exception std::logic_error   Matrix is not square
+     * @exception std::bad_alloc    Allocation failure
+     */
+    void adjoint_inplace()
+    {
+        this->cofactor_inplace();
+        *this = this->transpose();
+    }
+
+    /**
+     * Calculates the adjoint of the matrix
+     * and returns it as a new matrix
+     *
+     * @return                      Adjoint matrix
+     *
+     * @exception std::logic_error  Matrix is not square
+     * @exception std::bad_alloc    Allocation failure
+     */
+    Matrix adjoint() const
+    {
+        Matrix tmp = *this;
+        tmp.adjoint_inplace();
+        return tmp;
+    }
+
+    /**
+     * Calculates the inverse matrix
+     * and applies its result to the current matrix
+     *
+     * @exception std::logic_error   Matrix is not square
+     * @exception std::runtime_error Matrix' determinant is 0
+     * @exception std::bad_alloc     Allocation failure
+     */
+    void inverse_inplace()
+    {
+        value_type det = this->determinant();
+        if (!det)
+            throw std::runtime_error("determinant is 0");
+        this->adjoint_inplace();
+        *this *= 1. / det;
+    }
+
+    /**
+     * Calculates the inverse matrix
+     * and returns it as a new matrix
+     *
+     * @return                       Inverse matrix
+     *
+     * @exception std::logic_error   Matrix is not square
+     * @exception std::runtime_error Matrix' determinant is 0
+     * @exception std::bad_alloc     Allocation failure
+     */
+    Matrix inverse() const
+    {
+        Matrix tmp = *this;
+        tmp.inverse_inplace();
+        return tmp;
+    }
+
+    /**
      * Calculates the rank of a matrix, representing the amount
      * of independent rows / columns (or used dimension in vector space)
      *
      * @return                      Rank of current matrix
+     *
+     * @exception std::bad_alloc    Allocation failure
      */
     size_type rank() const
     {
@@ -815,6 +937,37 @@ private:
             result = maths::fma(sub_result, this->at(0, i), result);
         }
         return result;
+    }
+
+    /**
+     * Calculates the cofactor for a singular cell located on a 3x3 matrix or higher
+     *
+     * @param row                   Cell's row
+     * @param column                Cell's column
+     * @return                      Cofactor value for given cell
+     */
+    value_type _single_cofactor(const size_type& row, const size_type& column) const
+    {
+        const size_type LEN = this->_max_n;
+        Matrix sub_matrix(LEN - 1, LEN - 1);
+
+        size_type sub_n = 0;
+        for (size_type n = 0; n < LEN; ++n)
+        {
+            if (n == column)
+                continue;
+            size_type sub_m = 0;
+            for (size_type m = 0; m < LEN; ++m)
+            {
+                if (m == row)
+                    continue;
+                sub_matrix.at(sub_m, sub_n) = this->at(m, n);
+                ++sub_m;
+            }
+            ++sub_n;
+        }
+
+        return sub_matrix.determinant() * ((row + column) % 2 ? -1 : 1);
     }
 
 protected:
