@@ -82,7 +82,9 @@ public:
      * @exception std::bad_alloc    Allocation failure
      */
     explicit Matrix(const std::vector<std::vector<K>>& data):
-        _max_m(data.size()), _max_n(data.empty() ? 0 : data[0].size()), _data(new value_type[_max_m * _max_n])
+        _max_m(data.size()),
+        _max_n(data.empty() ? 0 : data[0].size()),
+        _data(new value_type[_max_m * (data.empty() ? 0 : data[0].size())])
     {
         for (size_type m = 0; m < data.size(); ++m)
             for (size_type n = 0; n < data[m].size(); ++n)
@@ -633,6 +635,8 @@ public:
      * Used for solving systems of linear equations
      *
      * @return                      Determinant of given matrix
+     *
+     * @exception std::logic_error  Matrix needs is not square
      */
     value_type determinant() const
     {
@@ -652,8 +656,6 @@ public:
             return this->_det2x2();
         case 3:
             return this->_det3x3();
-        case 4:
-            return this->_det4x4();
         default:
             return this->_detHigh();
         }
@@ -768,42 +770,51 @@ private:
      *
      * @return                      Determinant of given matrix
      */
-    value_type _det2x2()
+    value_type _det2x2() const
     {
-        return (*this)[{0, 0}] * (*this)[{1, 1}] - (*this)[{0, 1}] * (*this)[{1, 0}];
+        return maths::cross_product(this->at(0, 0), this->at(0, 1), this->at(1, 0), this->at(1, 1));
     }
 
     /**
-     * Calculates the determinant of a 4x4 matrix
-     * (Used by Matrix.determinant() and Matrix._det4x4)
+     * Calculates the determinant of a 3x3 matrix
+     * (Used by Matrix.determinant() and Matrix._detHigh)
      *
      * @return                      Determinant of given matrix
      */
-    value_type _det3x3()
+    value_type _det3x3() const
     {
-        return 0;
-    }
-
-    /**
-     * Calculates the determinant of a 4x4 matrix
-     * (Used by Matrix.determinant and Matrix._detHigh)
-     *
-     * @return                      Determinant of given matrix
-     */
-    value_type _det4x4()
-    {
-        return 0;
+        return this->at(0, 0) * maths::cross_product(this->at(1, 1), this->at(1, 2), this->at(2, 1), this->at(2, 2))
+             - this->at(1, 0) * maths::cross_product(this->at(0, 1), this->at(0, 2), this->at(2, 1), this->at(2, 2))
+             + this->at(2, 0) * maths::cross_product(this->at(0, 1), this->at(0, 2), this->at(1, 1), this->at(1, 2));
     }
 
     /**
      * Calculates the determinant of a higher matrix
-     * (Used by Matrix.determinant)
+     * (Used by Matrix.determinant())
      *
-     * @exception std::range_error  Not implemented yet
+     * @return                      Determinant of given matrix
      */
-    value_type _detHigh()
+    value_type _detHigh() const
     {
-        throw std::range_error("determinant for 5x5 matrix and above are not implemented yet..");
+        const size_type LEN = this->_max_n;
+        value_type result = value_type();
+        Matrix sub_matrix(LEN - 1, LEN - 1);
+
+        for (size_type i = 0; i < LEN; ++i)
+        {
+            size_type sub_n = 0;
+            for (size_type n = 0; n < LEN; ++n)
+            {
+                if (n == i)
+                    continue;
+                for (size_type m = 1; m < LEN; ++m)
+                    sub_matrix.at(m - 1, sub_n) = this->at(m, n);
+                ++sub_n;
+            }
+            value_type sub_result = (i % 2 ? -1 : 1) * sub_matrix.determinant();
+            result = maths::fma(sub_result, this->at(0, i), result);
+        }
+        return result;
     }
 
 protected:

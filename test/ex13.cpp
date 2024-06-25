@@ -11,9 +11,6 @@
 
 #include "common.hpp"
 
-// https://www.cuemath.com/algebra/rank-of-a-matrix/
-// https://math.stackexchange.com/questions/21100/importance-of-matrix-rank
-
 int main()
 {
     title("Matrix Ranks");

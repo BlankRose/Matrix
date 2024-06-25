@@ -31,6 +31,10 @@ namespace maths
     auto fma(const X& base, const Y& mul, const Z& add) -> decltype(base * mul + add)
         { return base * mul + add; }
 
+    template < class A, class B, class C, class D >
+    auto cross_product(const A& a, const B& b, const C& c, const D& d) -> decltype(a * d - b * c)
+        { return a * d - b * c; }
+
     template < class T, typename = typename
                std::enable_if<std::is_fundamental<T>::value>::type >
     T round_n(const T& value, const size_t& decimals)
