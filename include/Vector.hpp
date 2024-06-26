@@ -213,7 +213,19 @@ public:
      * @exception std::bad_alloc    Allocation failure
      */
     Matrix<value_type> to_matrix() const
-        { return _matrix; }
+    { return _matrix; }
+
+    /////// SUBJECT REQUIREMENTS ///////
+    // Functions asked, although already implemented by overloads
+
+    void add(const Vector& rhs)
+    { *this += rhs; }
+
+    void sub(const Vector& rhs)
+    { *this -= rhs; }
+
+    void scl(const value_type& rhs)
+    { *this *= rhs; }
 
 private:
     friend Matrix<value_type>;

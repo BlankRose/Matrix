@@ -885,6 +885,24 @@ public:
             this->at(m, a) += value * this->at(m, b);
     }
 
+    /////// SUBJECT REQUIREMENTS ///////
+    // Functions asked, although already implemented by overloads
+
+    void add(const Matrix& rhs)
+    { *this += rhs; }
+
+    void sub(const Matrix& rhs)
+    { *this -= rhs; }
+
+    void scl(const value_type& rhs)
+    { *this *= rhs; }
+
+    void mul_vec(const Vector<K>& rhs)
+    { *this *= rhs; }
+
+    void mul_mat(const Matrix& rhs)
+    { *this *= rhs; }
+
 private:
     /**
      * Calculates the determinant of a 2x2 matrix
